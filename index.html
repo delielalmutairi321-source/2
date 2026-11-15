@@ -1,0 +1,185 @@
+<title>اختبار الدوال</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one centered card column; screens swap in place (name, question, result). */
+:root{
+  --bg:#EEF4F4; --card:#FFFFFF; --ink:#14323A; --mute:#4A5F66; --line:#CFDDE0;
+  --accent:#C2561A; --accent-ink:#FFFFFF; --soft:#DCEBF2;
+  --good:#1B7A4B; --good-bg:#DDF1E5; --bad:#B3321F; --bad-bg:#FBE3DE;
+  --font:'Cairo','Tahoma','Arial',sans-serif; --mono:'JetBrains Mono','Courier New',monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F2329; --card:#17333B; --ink:#EAF2F3; --mute:#A9C0C5; --line:#2C4B54;
+    --accent:#F0A25F; --accent-ink:#14323A; --soft:#1F4852;
+    --good:#7FD6A4; --good-bg:#17402D; --bad:#FF9C8A; --bad-bg:#4A2520;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F2329; --card:#17333B; --ink:#EAF2F3; --mute:#A9C0C5; --line:#2C4B54;
+  --accent:#F0A25F; --accent-ink:#14323A; --soft:#1F4852;
+  --good:#7FD6A4; --good-bg:#17402D; --bad:#FF9C8A; --bad-bg:#4A2520;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.6;
+  padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--mute);font-size:16px;font-weight:600}
+.dots{display:flex;gap:8px}
+.dot{width:36px;height:8px;border-radius:4px;background:var(--line)}
+.dot.on{background:var(--accent)}
+.dot.ok{background:var(--good)}
+.dot.no{background:var(--bad)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:18px;min-width:0}
+h1{font-size:40px;line-height:1.25;font-weight:800;text-wrap:balance}
+h2{font-size:28px;line-height:1.45;font-weight:700;text-wrap:balance}
+p{margin:0}
+.mu{color:var(--mute)}
+label{font-weight:700}
+input[type=text]{font:inherit;font-size:22px;padding:14px 16px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+input[type=text]:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-size:20px;font-weight:700;border:0;border-radius:14px;padding:14px 28px;background:var(--accent);color:var(--accent-ink);cursor:pointer;align-self:flex-start}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.alt{background:var(--soft);color:var(--ink)}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{font:inherit;font-size:20px;text-align:right;display:flex;align-items:center;gap:14px;width:100%;
+  padding:14px 18px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.right{background:var(--good-bg);border-color:var(--good)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.mark{font-weight:800;min-width:1.6em;text-align:center}
+.code,.opt bdi{font-family:var(--mono);direction:ltr;unicode-bidi:isolate}
+pre.code{margin:0;padding:16px 20px;border-radius:14px;background:#14323A;color:#F7F4EE;font-size:20px;line-height:1.6;direction:ltr;text-align:left;overflow-x:auto}
+.fb{border-radius:14px;padding:16px 18px;font-weight:600}
+.fb.right{background:var(--good-bg);color:var(--good)}
+.fb.wrong{background:var(--bad-bg);color:var(--bad)}
+.fb span{display:block;color:var(--ink);font-weight:400;margin-top:4px}
+.score{font-size:72px;font-weight:800;line-height:1;color:var(--accent)}
+.score small{font-size:28px;color:var(--mute);font-weight:600}
+.send{background:var(--soft);border:2px dashed var(--accent);border-radius:14px;padding:16px 18px;font-size:22px;font-weight:700;text-align:center}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+[hidden]{display:none!important}
+@media (max-width:480px){h1{font-size:32px}h2{font-size:24px}.card{padding:20px}.opt{font-size:18px}}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .25s ease-out}@keyframes in{from{opacity:.4;transform:translateY(6px)}}}
+</style>
+
+<div class="wrap" dir="rtl" lang="ar">
+  <div class="top" id="top" hidden>
+    <span id="who"></span>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <span id="count"></span>
+  </div>
+
+  <section class="card" id="s-name">
+    <p class="mu">الدرس السابع: الدوال</p>
+    <h1>اختبار الدوال في بايثون</h1>
+    <p class="mu">خمسة أسئلة قصيرة، وبعد كل إجابة تظهر لك ملاحظة توضح الصواب.</p>
+    <label for="name">اكتبي اسمك</label>
+    <input type="text" id="name" autocomplete="off" placeholder="مثال: ريم" maxlength="30">
+    <button class="btn" id="start" disabled>ابدئي الاختبار</button>
+  </section>
+
+  <section class="card" id="s-q" hidden>
+    <p class="mu" id="qno"></p>
+    <h2 id="qtext"></h2>
+    <pre class="code" id="qcode" hidden></pre>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb" hidden></div>
+    <button class="btn" id="next" hidden></button>
+  </section>
+
+  <section class="card" id="s-end" hidden>
+    <p class="mu">النتيجة</p>
+    <h1 id="endtitle"></h1>
+    <p class="score" id="score"></p>
+    <p id="endmsg"></p>
+    <p class="send">صوّري الشاشة وأرسليها إلى الأستاذة دلال في الدردشة.</p>
+    <div class="row"><button class="btn alt" id="again">أعيدي الاختبار</button></div>
+  </section>
+</div>
+
+<script>
+(function(){
+  var Q=[
+    {q:"بأي كلمة نبدأ تعريف الدالة في بايثون؟",opts:["def","print","call","func"],a:0,
+     ok:"def تخبر الحاسب أننا نريد تعريف دالة جديدة.",
+     no:"الكلمة الصحيحة هي def. هي التي تخبر الحاسب أننا نعرّف دالة جديدة."},
+    {q:"كيف نستدعي دالة اسمها hello؟",opts:["def hello","hello()","hello","call hello"],a:1,
+     ok:"للاستدعاء نكتب اسم الدالة متبوعًا بأقواس.",
+     no:"للاستدعاء نكتب اسم الدالة متبوعًا بأقواس: hello()."},
+    {q:"ماذا نسمّي المتغيرات التي نكتبها بين الأقواس عند تعريف الدالة؟",opts:["الوسائط","المعاملات","النتائج"],a:1,plain:true,
+     ok:"المعاملات تُكتب عند التعريف، وتستقبل قيم الوسائط عند الاستدعاء.",
+     no:"الصحيح: المعاملات. أما الوسائط فهي القيم التي نرسلها عند الاستدعاء."},
+    {q:"ما الميزة الرئيسة للدوال؟",opts:["تجعل البرنامج أبطأ","نكتب الأوامر مرة واحدة ونستدعيها مرات كثيرة","تحذف الأخطاء تلقائيًا"],a:1,plain:true,
+     ok:"نكتب الدالة مرة واحدة، ونستدعيها مرارًا دون إعادة كتابتها.",
+     no:"الميزة الرئيسة: نكتب الأوامر مرة واحدة ونستدعيها مرات كثيرة."},
+    {q:"ماذا ستطبع هذه الدالة؟",code:'def printMax(a, b):\n    if a > b:\n        print(a, "هو الأكبر")\n    elif a == b:\n        print(a, "يساوي", b)\n    else:\n        print(b, "هو الأكبر")\n\nprintMax(3, 4)',
+     opts:["3 هو الأكبر","4 هو الأكبر","3 يساوي 4"],a:1,plain:true,
+     ok:"الوسيطان 3 و 4 دخلا إلى a و b. بما أن 3 ليست أكبر من 4 ولا تساويها، دخلنا else وطُبع 4 هو الأكبر.",
+     no:"الوسيطان 3 و 4 دخلا إلى a و b. الشرطان if و elif غير صحيحين، فيعمل else ويطبع: 4 هو الأكبر."}
+  ];
+  var $=function(id){return document.getElementById(id)};
+  var name="",i=0,score=0,res=[];
+
+  function show(id){["s-name","s-q","s-end"].forEach(function(s){$(s).hidden=(s!==id)});$("top").hidden=(id==="s-name")}
+  function dots(){
+    var h="";for(var k=0;k<Q.length;k++){var c=res[k]===true?"ok":res[k]===false?"no":(k===i?"on":"");h+='<span class="dot '+c+'"></span>'}
+    $("dots").innerHTML=h;
+  }
+  function render(){
+    var q=Q[i];
+    $("who").textContent=name;$("count").textContent=(i+1)+" / "+Q.length;
+    $("qno").textContent="السؤال "+(i+1)+" من "+Q.length;
+    $("qtext").textContent=q.q;
+    var pre=$("qcode");if(q.code){pre.textContent=q.code;pre.hidden=false}else pre.hidden=true;
+    var box=$("opts");box.innerHTML="";
+    q.opts.forEach(function(t,k){
+      var b=document.createElement("button");b.className="opt";b.type="button";
+      var m=document.createElement("span");m.className="mark";m.setAttribute("aria-hidden","true");
+      var s=document.createElement(q.plain?"span":"bdi");s.textContent=t;
+      b.appendChild(m);b.appendChild(s);
+      b.addEventListener("click",function(){pick(k)});
+      box.appendChild(b);
+    });
+    $("fb").hidden=true;$("next").hidden=true;dots();
+  }
+  function pick(k){
+    var q=Q[i],good=(k===q.a);
+    res[i]=good;if(good)score++;
+    var bs=$("opts").children;
+    for(var j=0;j<bs.length;j++){
+      bs[j].disabled=true;
+      if(j===q.a){bs[j].classList.add("right");bs[j].firstChild.textContent="✓"}
+      else if(j===k){bs[j].classList.add("wrong");bs[j].firstChild.textContent="✗"}
+    }
+    var fb=$("fb");fb.className="fb "+(good?"right":"wrong");
+    fb.innerHTML="";
+    var t=document.createElement("strong");t.textContent=good?("إجابة صحيحة، أحسنتِ يا "+name):"إجابة غير صحيحة، لا بأس";
+    var d=document.createElement("span");d.textContent=good?q.ok:q.no;
+    fb.appendChild(t);fb.appendChild(d);fb.hidden=false;
+    var n=$("next");n.textContent=(i===Q.length-1)?"عرض النتيجة":"السؤال التالي";n.hidden=false;n.focus();
+    dots();
+  }
+  function finish(){
+    show("s-end");
+    $("endtitle").textContent="نتيجتك يا "+name;
+    $("score").innerHTML=score+' <small>من '+Q.length+'</small>';
+    var m=score===5?"أحسنتِ! إجابات كاملة، أنتِ فهمتِ الدالة ممتازًا.":
+          score>=3?"أحسنتِ! أنتِ على الطريق الصحيح، راجعي الأسئلة التي أخطأتِ فيها.":
+          "أحسنتِ على المحاولة! أعيدي الاختبار بعد مراجعة الدرس وستتحسن نتيجتك.";
+    $("endmsg").textContent=m;
+  }
+  function begin(){i=0;score=0;res=[];show("s-q");render()}
+
+  var inp=$("name"),st=$("start");
+  inp.addEventListener("input",function(){st.disabled=!inp.value.trim()});
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter"&&inp.value.trim())st.click()});
+  st.addEventListener("click",function(){name=inp.value.trim();if(name)begin()});
+  $("next").addEventListener("click",function(){if(i<Q.length-1){i++;render()}else finish()});
+  $("again").addEventListener("click",begin);
+})();
+</script>
